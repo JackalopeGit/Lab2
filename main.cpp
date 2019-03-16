@@ -273,19 +273,14 @@ Codes optimize(Codes bad_code)
 
     bool is_optimized = false;
 
+    bool is_skip = false;
+
     for(size_t i = 0; i < bad_code.size(); ++i)
     {
         if (BAD_1_1.size() < bad_code.size() && std::equal(BAD_1_1.begin(), BAD_1_1.end(), bad_code.begin() + i))
         {
             uint32_t pp_count = 1;
             auto offset = i;
-
-
-            puts("");
-            puts("OPTIMIZED:");
-            puts("");
-            print_code(new_code);
-            puts("");
 
             for(size_t j = i + BAD_1_1.size(); j < bad_code.size(); ++j)
             {
@@ -312,7 +307,8 @@ Codes optimize(Codes bad_code)
                     i+= BAD_1_2.size() + BAD_1_3.size();
 
                     is_optimized = true;
-                    goto CONTINUE;
+                    is_skip = true;
+                    break;
                 }
             }
         }
@@ -339,13 +335,11 @@ Codes optimize(Codes bad_code)
                 if (std::equal(GOOD_3.begin(), GOOD_3.end(), bad_code.begin() + i + BAD_3_1.size() + 1))
                 {
                     new_code.emplace_back(operation);
-                    auto tmp = new_code.size();
                     new_code.insert(new_code.end(), GOOD_3.begin(), GOOD_3.end());
                     is_optimized = true;
                     i += BAD_3_1.size() + GOOD_3.size();
-                    goto CONTINUE;
+                    continue;
                 }
-
             }
         }
         else if (BAD_4_1.size() < bad_code.size() && std::equal(BAD_4_1.begin(), BAD_4_1.end(), bad_code.begin() + i))
@@ -360,13 +354,13 @@ Codes optimize(Codes bad_code)
                     is_optimized = true;
                     new_code[new_code.size() - 2].p_s = bad_code[i+3].p_s;
                     i += BAD_4_1.size() + GOOD_4.size();
-                    goto CONTINUE;
+                    continue;
                 }
             }
         }
-
-        new_code.emplace_back(bad_code[i]);
-CONTINUE: true == true;
+        if (not is_skip)
+            new_code.emplace_back(bad_code[i]);
+        else is_skip = false;
     }
 
     if (is_optimized)
